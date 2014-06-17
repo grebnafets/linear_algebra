@@ -1,5 +1,5 @@
 /*jslint browser: true, indent: 8 */
-/*global console, LA, alert*/
+/*global console */
 
 /*
         Sorts matrix like from something like this:
