@@ -1,3 +1,6 @@
+/*jslint browser: true, indent: 8 */
+/*global console, LA, alert*/
+
 /*
         Sorts matrix like from something like this:
                 [
@@ -162,7 +165,7 @@ matrix = [
         [4, 87, -12, 7, 12, 6],
         [5, 4, 7, 11, 7, -7]
 ];
-        
+
 matrix = reduced_row_echolon_form(matrix);
 console.log(matrix[0]);
 console.log(matrix[1]);
@@ -176,7 +179,7 @@ matrix = [
         [1, 3, 3, 3],
         [1, 4, 16, 5]
 ];
-        
+
 matrix = reduced_row_echolon_form(matrix);
 console.log(matrix);
 
@@ -186,6 +189,6 @@ matrix = [
         [0, 3, -2, -16],
         [0, 0, -3, 11]
 ];
-        
+
 matrix = reduced_row_echolon_form(matrix);
 console.log(matrix);
