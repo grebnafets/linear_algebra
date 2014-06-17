@@ -77,7 +77,7 @@ function sort_reduced_matrix(matrix) {
 
 function reduced_row_echolon_form(matrix) {
         'use strict';
-        var i, p, tmp, len, mu, mv;
+        var i, p, tmp, len;
 
         len = {}; // Length.
         i   = {}; // Increment.
