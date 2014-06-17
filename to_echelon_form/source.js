@@ -36,7 +36,7 @@ function sort_reduced_matrix(matrix) {
 
         has_pivot = [];
 
-        // Find nonzero positions
+        // Find pivot positions
         for (j = 0; j < len.j; j += 1) {
                 for (i = 0; i < len.i; i += 1) {
                         if (matrix[i][j] === 1 && has_pivot[i] !== i) {
