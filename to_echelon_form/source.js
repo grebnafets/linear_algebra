@@ -22,8 +22,6 @@
         the vector has the length of 3, so only
         3 vectors are sorted and the rest (irrelevent vectors) are appended
         later.
-        
-        It was made to help prepere for reduced row echolon form.
  */
 function sort_reduced_matrix(matrix) {
         'use strict';
