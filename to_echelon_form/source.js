@@ -1,7 +1,7 @@
 /*jslint browser: true, indent: 8 */
 /*global console */
 
-copyMatrix = function(matrix) {
+function copyMatrix(matrix) {
         'use strict';
         var r, c, len, copy;
 
@@ -99,9 +99,9 @@ function leadingPivotsToTop(matrix) {
 function reduced_row_echolon_form(matrix) {
         'use strict';
         var i, p, tmp, len, mtx;
-        
+
         mtx = copyMatrix(matrix);
-        
+
         len = {}; // Length.
         i   = {}; // Increment.
         tmp = {}; // Temporary holder.
@@ -112,15 +112,15 @@ function reduced_row_echolon_form(matrix) {
 
         i.lr  = 0; // Lead row, increment.
         i.rtr = 0; // row to reduce, increment.
-        i.c   = 0;  // Column, increment.
+        i.c   = 0; // Column, increment.
 
         tmp.v = []; // Vector, temporary holder.
         tmp.p = 0;  // Current pivot value, temporary holder.
 
         p.lp = 0;  // Lead pivot, position.
-        p.rl = [];  // Reserved lead, position.
+        p.rl = []; // Reserved lead, position.
 
-         // Find lead pivots in matrix.
+        // Find lead pivots in matrix.
         for (i.lr = 0; i.lr < len.r; i.lr += 1) {
 
                 p.lp = null;
