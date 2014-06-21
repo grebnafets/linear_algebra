@@ -1,6 +1,28 @@
 /*jslint browser: true, indent: 8 */
 /*global console */
 
+copyMatrix = function(matrix) {
+        'use strict';
+        var r, c, len, copy;
+
+        r   = 0; // row
+        c   = 0; // col
+        len = {};
+        len.r = matrix.length;
+        len.c = matrix[0].length;
+
+        copy = [];
+
+        for (r = 0; r < len.r; r += 1) {
+                copy[r] = [];
+                for (c = 0; c < len.c; c += 1) {
+                        copy[r] = matrix[r].slice(0);
+                }
+        }
+
+        return copy;
+};
+
 /*
         Sorts matrix like from something like this:
                 [
@@ -26,48 +48,47 @@
         3 vectors are sorted and the rest (irrelevent vectors) are appended
         later.
  */
-function sort_reduced_matrix(matrix) {
+function leadingPivotsToTop(matrix) {
         'use strict';
-        var i, j, len, has_pivot, irrelevant, positions, new_matrix, count;
+        var r, c, len, has_pivot, irrelevant, positions, new_matrix, count;
 
-        len       = {};
-        len.i     = matrix.length;    // matrix length (row)
-        len.j     = matrix[0].length; // vector length (column)
-        positions = [];
-
-        has_pivot = [];
+        len = {
+                row: matrix.length,
+                col: matrix[0].length
+        };
+        positions  = [];
+        has_pivot  = [];
+        irrelevant = [];
+        new_matrix = [];
+        count      = 0;
 
         // Find pivot positions
-        for (j = 0; j < len.j; j += 1) {
-                for (i = 0; i < len.i; i += 1) {
-                        if (matrix[i][j] === 1 && has_pivot[i] !== i) {
-                                has_pivot[i] = i;
-                                positions[positions.length] = i;
+        for (c = 0; c < len.col; c += 1) {
+                for (r = 0; r < len.row; r += 1) {
+                        if (matrix[r][c] === 1 && has_pivot[r] !== r) {
+                                has_pivot[r] = r;
+                                positions[positions.length] = r;
                                 break;
                         }
                 }
         }
 
-        irrelevant = [];
-        count      = 0;
-
         // Find irrelevant vectors positions
-        for (i = 0; i < len.i; i += 1) {
-                if (has_pivot[i] === undefined) {
-                        irrelevant[count] = i;
+        for (r = 0; r < len.row; r += 1) {
+                if (has_pivot[r] === undefined) {
+                        irrelevant[irrelevant.length] = r;
                         count += 1;
                 }
         }
 
-        new_matrix = [];
-        count      = 0;
+        count = 0;
 
         // Sort positions
-        for (i = 0; i < len.i; i += 1) {
-                if (matrix[positions[i]] !== undefined) {
-                        new_matrix[i] = matrix[positions[i]];
+        for (r = 0; r < len.row; r += 1) {
+                if (matrix[positions[r]] !== undefined) {
+                        new_matrix[r] = matrix[positions[r]];
                 } else {
-                        new_matrix[i] = matrix[irrelevant[count]];
+                        new_matrix[r] = matrix[irrelevant[count]];
                         count += 1;
                 }
         }
@@ -77,35 +98,37 @@ function sort_reduced_matrix(matrix) {
 
 function reduced_row_echolon_form(matrix) {
         'use strict';
-        var i, p, tmp, len;
-
+        var i, p, tmp, len, mtx;
+        
+        mtx = copyMatrix(matrix);
+        
         len = {}; // Length.
         i   = {}; // Increment.
         tmp = {}; // Temporary holder.
         p   = {}; // Position.
 
-        len.r   = matrix.length;    // Row, length.
-        len.c   = matrix[0].length; // column, length.
+        len.r   = mtx.length;    // Row, length.
+        len.c   = mtx[0].length; // column, length.
 
-        i.r  = 0; // Row, increment.
-        i.r2 = 0; // Row2, increment.
-        i.c  = 0; // Column, increment.
+        i.lr  = 0; // Lead row, increment.
+        i.rtr = 0; // row to reduce, increment.
+        i.c  = 0;  // Column, increment.
 
         tmp.v = []; // Vector, temporary holder.
-        tmp.p = 0;  // pivot value.
+        tmp.p = 0;  // Current pivot value, temporary holder.
 
         p.lp  = 0;  // Lead pivot, position.
-        p.rpd = []; // Reserved positions direct, position.
+        p.rl = [];  // Reserved lead, position.
 
          // Find lead pivots in matrix.
-        for (i.r = 0; i.r < len.r; i.r += 1) {
+        for (i.lr = 0; i.lr < len.r; i.lr += 1) {
 
                 p.lp = null;
                 // Get lead pivot position.
                 for (i.c = 0; i.c < len.c; i.c += 1) {
                         /* If position is not reserved nor is zero, then that is
                          * our leading pivot. */
-                        if (matrix[i.r][i.c] !== 0 && p.rpd[i.c] === undefined) {
+                        if (mtx[i.lr][i.c] !== 0 && p.rl[i.c] === undefined) {
                                 p.lp = i.c;
                                 break;
                         }
@@ -113,52 +136,85 @@ function reduced_row_echolon_form(matrix) {
 
                 if (p.lp !== null) {
                         // Reserve lead pivot position.
-                        p.rpd[p.lp] = p.lp;
+                        p.rl[p.lp] = p.lp;
                         // Reduce row such that the pivot is 1.
-                        if (matrix[i.r][p.lp] !== 1) {
-                                tmp.p = matrix[i.r][p.lp];
+                        if (mtx[i.lr][p.lp] !== 1) {
+                                tmp.p = mtx[i.lr][p.lp];
                                 for (i.c = 0; i.c < len.c; i.c += 1) {
-                                        matrix[i.r][i.c] /= tmp.p;
+                                        mtx[i.lr][i.c] /= tmp.p;
                                 }
                         }
                         /* Reduce other rows (i.r2) from row (i.r). */
-                        for (i.r2 = 0; i.r2 < len.r; i.r2 += 1) {
+                        for (i.rtr = 0; i.rtr < len.r; i.rtr += 1) {
                                 /* Skip row (i.r) and don't reduce if desired
                                  * value is already zero. */
-                                if (i.r2 !== i.r && matrix[i.r2][p.lp] !== 0) {
+                                if (i.rtr !== i.lr && mtx[i.rtr][p.lp] !== 0) {
                                         /* Scale row (i.r) using pivot position
                                          * from row (i.r2) as the multiplier. */
                                         for (i.c = 0; i.c < len.c; i.c += 1) {
-                                                tmp.v[i.c] = matrix[i.r][i.c];
-                                                tmp.v[i.c] *= matrix[i.r2][p.lp];
+                                                tmp.v[i.c] = mtx[i.lr][i.c];
+                                                tmp.v[i.c] *= mtx[i.rtr][p.lp];
                                         }
                                         // Row reduction.
                                         for (i.c = 0; i.c < len.c; i.c += 1) {
-                                                matrix[i.r2][i.c] -= tmp.v[i.c];
+                                                mtx[i.rtr][i.c] -= tmp.v[i.c];
                                         }
                                 }
                         }
                 }
         }
-        // Finally, we sort our rows, keeping zeros at the bottom and return.
-        return sort_reduced_matrix(matrix);
+        // Finally, we sort our rows, having leads at top and return.
+        return leadingPivotsToTop(mtx);
 }
 
-// Compere this to wolframalpha.com answers.
+function compere_matrices(matrix_a, matrix_b) {
+        'use strict';
+        var i, j, len;
 
-// answer: http://www.wolframalpha.com/input/?i=solve+row+echelon+form+{{5%2C+-7%2C+-8%2C+-4}%2C{2%2C+8%2C+-22%2C+-55}%2C+{-3%2C+0%2C+-36%2C+12}}
-var matrix = [
+        if (matrix_a.length !== matrix_b.length) {
+                return false;
+        }
+
+        len = {};
+
+        len.i = matrix_a.length;
+
+        for (i = 0; i < len.i; i += 1) {
+                if (matrix_a[i].length !== matrix_b[i].length) {
+                        return false;
+                }
+
+                len.j = matrix_a[i].length;
+
+                for (j = 0; j < len.j; j += 1) {
+                        if (matrix_a[i][j] !== matrix_b[i][j]) {
+                                return false;
+                        }
+                }
+        }
+
+        return true;
+}
+
+
+// Tests.
+var m = [
         [5, -7, -8, -4],
         [2, 8, -22, -55],
         [-3, 0, -36, 12]
 ];
+// answer: http://www.wolframalpha.com/input/?i=solve+row+echelon+form+{{5%2C+-7%2C+-8%2C+-4}%2C{2%2C+8%2C+-22%2C+-55}%2C+{-3%2C+0%2C+-36%2C+12}}
+var mr = [
+        [1, 0, 0, -6.785219399538105],
+        [0, 1, 0, -4.54041570438799],
+        [0, 0, 1, 0.23210161662817538]
+];
 
-matrix = reduced_row_echolon_form(matrix);
-
-console.log(matrix);
+console.log(" ");
+console.log("reduced_row_echolon_form test:         " + compere_matrices(reduced_row_echolon_form(m), mr));
 
 // answer: http://www.wolframalpha.com/input/?i=solve+row+echelon+form+{{5%2C+-23%2C+2%2C+4%2C+5%2C+11}%2C{4%2C+-3%2C+6%2C+4%2C+5%2C+2}%2C{3%2C+7%2C+-18%2C+7%2C+9%2C+-6}%2C{4%2C+87%2C+-12%2C+7%2C+12%2C+6}%2C{5%2C+4%2C+7%2C+11%2C+7%2C+-7}}
-matrix = [
+var m = [
         [5, -23, 2, 4, 5, 11],
         [4, -3, 6, 4, 5, 2],
         [3, 7, -18, 7, 9, -6],
@@ -166,29 +222,45 @@ matrix = [
         [5, 4, 7, 11, 7, -7]
 ];
 
-matrix = reduced_row_echolon_form(matrix);
-console.log(matrix[0]);
-console.log(matrix[1]);
-console.log(matrix[2]);
-console.log(matrix[3]);
-console.log(matrix[4]);
+var mr = [
+        [1, 0, 0, 0, 0, 10.784116921993304],
+        [0, 1, 0, 0, 0, 0.3085998347488045],
+        [0, 0, 1, 0, 0, -1.0969699432456959],
+        [0, 0, 0, 1, 0, -1.369593780053366],
+        [0, 0, 0, 0, 1, -5.630094680807834]
+];
+
+console.log(" ");
+console.log("reduced_row_echolon_form test:         " + compere_matrices(reduced_row_echolon_form(m), mr));
 
 // answer: http://www.wolframalpha.com/input/?i=solve+row+echelon+form+{{1%2C+2%2C+2%2C+2}%2C{1%2C+3%2C+3%2C+3}%2C+{1%2C+4%2C+16%2C+5}}
-matrix = [
+m = [
         [1, 2, 2, 2],
         [1, 3, 3, 3],
         [1, 4, 16, 5]
 ];
 
-matrix = reduced_row_echolon_form(matrix);
-console.log(matrix);
+mr = [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0.9166666666666666],
+        [0, 0, 1, 0.08333333333333333]
+];
+
+console.log(" ");
+console.log("reduced_row_echolon_form test:         " + compere_matrices(reduced_row_echolon_form(m), mr));
 
 // answer: http://www.wolframalpha.com/input/?i=solve+row+echelon+form+{{0%2C+2%2C+-1%2C+-6}%2C{0%2C+3%2C+-2%2C+-16}%2C+{0%2C+0%2C+-3%2C+11}}
-matrix = [
+m = [
         [0, 2, -1, -6],
         [0, 3, -2, -16],
         [0, 0, -3, 11]
 ];
 
-matrix = reduced_row_echolon_form(matrix);
-console.log(matrix);
+mr = [
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+];
+
+console.log(" ");
+console.log("reduced_row_echolon_form test:         " + compere_matrices(reduced_row_echolon_form(m), mr));
