@@ -107,17 +107,17 @@ function reduced_row_echolon_form(matrix) {
         tmp = {}; // Temporary holder.
         p   = {}; // Position.
 
-        len.r   = mtx.length;    // Row, length.
-        len.c   = mtx[0].length; // column, length.
+        len.r = mtx.length;    // Row, length.
+        len.c = mtx[0].length; // column, length.
 
         i.lr  = 0; // Lead row, increment.
         i.rtr = 0; // row to reduce, increment.
-        i.c  = 0;  // Column, increment.
+        i.c   = 0;  // Column, increment.
 
         tmp.v = []; // Vector, temporary holder.
         tmp.p = 0;  // Current pivot value, temporary holder.
 
-        p.lp  = 0;  // Lead pivot, position.
+        p.lp = 0;  // Lead pivot, position.
         p.rl = [];  // Reserved lead, position.
 
          // Find lead pivots in matrix.
